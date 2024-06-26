@@ -1,63 +1,44 @@
-// import modules
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
+const Article = require('./models/article'); // Replace with your actual model import
 
 mongoose.connect('mongodb://localhost/nodekb');
-let db = mongoose.connection;
+const db = mongoose.connection;
 
-// Check connection
-
-
-
-// Check for DB errors
-db.on('eror', (err) {
-    console.log(err);
+db.once('open', () => {
+    console.log('Connected to MongoDB');
 });
 
-// init App
+db.on('error', (err) => {
+    console.error(err);
+});
+
 const app = express();
 
-// Load View ENgine
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-// Home route
-app.get('/', (req, res) => {
-    let articles = [
-        {
-            id: 1,
-            title: 'Article One',
-            author: 'Daniel Afriyie',
-            body: 'This is article one'
-        },
-        {
-            id: 2,
-            title: 'Article Two',
-            author: 'Daniel Afriyie',
-            body: 'This is article two'
-        },{
-            id: 3,
-            title: 'Article Three',
-            author: 'Daniel Afriyie',
-            body: 'This is article three'
-        }
-    ];
-
-    res.render('index', {
-        title: 'Articles',
-        articles: articles
-    });
+app.get('/', async (req, res) => {
+    try {
+        const articles = await Article.find({});
+        res.render('index', {
+            title: 'Articles',
+            articles: articles
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error fetching articles');
+    }
 });
 
-// Add route
 app.get('/articles/add', (req, res) => {
     res.render('add_article', {
-        title: 'Add articles'
+        title: 'Add Article'
     });
 });
 
-// Start Server
-app.listen(3000, () => {
-    console.log(`Server is runnin on port 3000...`)
+const port = 3000;
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });

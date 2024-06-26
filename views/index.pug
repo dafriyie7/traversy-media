@@ -1,8 +1,7 @@
 extends layout
 
 block content
-        h1 #{title}
-        each articls, i in articles
-        ul 
-            each article, i in articles
-                li=articls.title
+    h1 #{title}
+    ul
+        each article, i in articles
+            li= article.title
